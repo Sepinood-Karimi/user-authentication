@@ -45,11 +45,6 @@ const AuthForm = () => {
                 });
             setIsLoading(false);
             const data = await response.json();
-            if (data.registered){
-                alert(`You Successfully Logged In with ${enteredEmail}!`);
-            }else{
-                alert(`your account with ${enteredEmail} created!`)
-            }
             if (response.ok){
                 const expTime = new Date(new Date().getTime() +(+data.expiresIn *1000));
                 authCtx.login(data.idToken,expTime.toISOString())
