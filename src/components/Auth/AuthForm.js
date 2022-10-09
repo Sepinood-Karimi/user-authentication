@@ -51,7 +51,8 @@ const AuthForm = () => {
                 alert(`your account with ${enteredEmail} created!`)
             }
             if (response.ok){
-                authCtx.login(data.idToken)
+                const expTime = new Date(new Date().getTime() +(+data.expiresIn *1000));
+                authCtx.login(data.idToken,expTime.toISOString())
                 navigate('/',{replace:true})
             }else {
                 let error = data.error.message;

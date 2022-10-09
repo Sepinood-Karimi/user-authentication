@@ -1,29 +1,74 @@
 import AuthContext from "./auth-context";
-import {useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 
+let logoutTimer;
 
-const AuthProvider = ({children}) => {
-    const [token,setToken] = useState('');
-    const isLoggedIn = !!token;
+const calculateRemainingTime = (expTime) => {
+    const currentTime = new Date().getTime();
+    const adjExpTime = new Date(expTime).getTime();
+    const remainingDuration = adjExpTime - currentTime;
+    return remainingDuration;
+};
 
-    const loginHandler = (token) => {
-        setToken(token);
-    };
-    const logoutHandler = () => {
-        setToken(null);
-    };
-
-    const authValue = {
-        token ,
-        isLoggedIn,
-        login : loginHandler,
-        logout : logoutHandler
+const checkTokenValidation = () => {
+    const storedToken = localStorage.getItem('token');
+    const storedExpTime = localStorage.getItem('expTime');
+    const remainingTime = calculateRemainingTime(storedExpTime);
+    if (remainingTime <= 60000) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('expTime');
+        return null;
+    }
+    return {
+        token: storedToken,
+        remainingTime
     }
 
-    return(
-      <AuthContext.Provider value={authValue}>
-          {children}
-      </AuthContext.Provider>
+}
+const AuthProvider = ({children}) => {
+
+    const tokenData = checkTokenValidation();
+    let initialToken;
+    if (initialToken){
+        initialToken = tokenData.token;
+    }
+    const [token, setToken] = useState(initialToken);
+
+    const logoutHandler = useCallback(() => {
+        setToken(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('expTime');
+        if (logoutTimer) {
+            clearTimeout(logoutTimer);
+        }
+    },[]);
+
+    const isLoggedIn = !!token;
+    const loginHandler = (token, expTime) => {
+        setToken(token);
+        localStorage.setItem('token', token);
+        localStorage.setItem('expTime', expTime);
+        const remainingTime = calculateRemainingTime(expTime);
+        logoutTimer = setTimeout(logoutHandler, remainingTime);
+    };
+
+    useEffect(()=>{
+        if (tokenData){
+            logoutTimer = setTimeout(logoutHandler,tokenData.remainingTime)
+        }
+    },[tokenData,logoutHandler])
+
+    const authValue = {
+        token,
+        isLoggedIn,
+        login: loginHandler,
+        logout: logoutHandler
+    }
+
+    return (
+        <AuthContext.Provider value={authValue}>
+            {children}
+        </AuthContext.Provider>
     );
 };
 
