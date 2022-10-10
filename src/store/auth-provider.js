@@ -26,13 +26,13 @@ const checkTokenValidation = () => {
 
 }
 const AuthProvider = ({children}) => {
-
     const tokenData = checkTokenValidation();
     let initialToken;
     if (initialToken){
         initialToken = tokenData.token;
     }
     const [token, setToken] = useState(initialToken);
+    const isLoggedIn = !!token;
 
     const logoutHandler = useCallback(() => {
         setToken(null);
@@ -42,8 +42,6 @@ const AuthProvider = ({children}) => {
             clearTimeout(logoutTimer);
         }
     },[]);
-
-    const isLoggedIn = !!token;
     const loginHandler = (token, expTime) => {
         setToken(token);
         localStorage.setItem('token', token);
