@@ -4,6 +4,8 @@ import AuthContext from "../../store/auth-context";
 import {useNavigate} from "react-router-dom";
 
 const ProfileForm = () => {
+    const [isLoading,setIsLoading]=useState(false);
+
     const navigate = useNavigate();
 
     const newPasswordRef = useRef();
@@ -15,6 +17,7 @@ const ProfileForm = () => {
         const newEnteredPassword =newPasswordRef.current.value;
 
         try {
+            setIsLoading(true);
             const response = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyCCv9p4SEWJKbVkOPM5e8W9n-RzFaofv84', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -28,6 +31,7 @@ const ProfileForm = () => {
 
             });
             const data = await response.json();
+            setIsLoading(false);
             if (!response.ok) {
                 let error = data.error.message;
                 throw new Error(error);
@@ -46,7 +50,8 @@ const ProfileForm = () => {
                 <input type='password' id='new-password' ref={newPasswordRef}/>
             </div>
             <div className={classes.action}>
-                <button>Change Password</button>
+                {!isLoading && <button>Change Password</button>}
+                {isLoading && <button> Changing your Pass ...</button>}
             </div>
         </form>
     );
