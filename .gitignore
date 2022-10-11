@@ -23,3 +23,12 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea
+
+
+/.firebase
+/firebase.json
+
+
+/.firebaserc
+/.github/workflows/firebase-hosting-merge.yml
+/.github/workflows/firebase-hosting-pull-request.yml
