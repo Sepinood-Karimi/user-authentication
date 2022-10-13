@@ -50,6 +50,19 @@ const AuthProvider = ({children}) => {
         logoutTimer = setTimeout(logoutHandler, remainingTime);
     };
 
+    useEffect(() => {
+        try{
+            const token = localStorage.getItem('token');
+            const expTime = localStorage.getItem('expTime');
+
+            if(token && expTime && new Date(expTime) > new Date){
+                setToken(token);
+            }
+        }catch (e){
+
+        }
+    }, []);
+
     useEffect(()=>{
         if (tokenData){
             logoutTimer = setTimeout(logoutHandler,tokenData.remainingTime)
